@@ -41,6 +41,17 @@ class AuthorsDataAdapter:
         author.id=lid
         return author
     
+    @staticmethod
+    def delete(id: int) -> bool:
+        cn = sqlite3.connect("books.db")
+        cur = cn.cursor()
+        sql = "SELECT author_id FROM books"
+        if id in [row[0] for row in cur.execute(sql)]:
+            return False
+        cur.execute(f"DELETE FROM authors WHERE id={id}")
+        cn.commit()
+        return True
+    
 class Translators :
     id : int =0
     national_code :int = 0
@@ -79,6 +90,16 @@ class TranslatorsDataAdapter:
         lid=cur.lastrowid
         tranlator.id=lid
         return tranlator
+    @staticmethod
+    def delete(id: int) -> bool:
+        cn = sqlite3.connect("books.db")
+        cur = cn.cursor()
+        sql = "SELECT translator_id FROM books"
+        if id in [row[0] for row in cur.execute(sql)]:
+            return False
+        cur.execute(f"DELETE FROM translators WHERE id={id}")
+        cn.commit()
+        return True
     
 class Esrb_ratings :
     id : int =0
@@ -193,6 +214,7 @@ class ResourcesDataAdapter:
             resources.append(r1)
         for resource in resources :
             print(resource)
+
     def insert(resource: Resources)-> Resources:
         cn=sqlite3.connect("data1.db")
         cur=cn.cursor()
@@ -202,6 +224,18 @@ class ResourcesDataAdapter:
         lid=cur.lastrowid
         resource.id=lid
         return resource
+    
+    @staticmethod
+    def delete(id: int) -> bool:
+        cn = sqlite3.connect("books.db")
+        cur = cn.cursor()
+        sql = "SELECT resource_id FROM books"
+        if id in [row[0] for row in cur.execute(sql)]:
+            return False
+        cur.execute(f"DELETE FROM resources WHERE id={id}")
+        cn.commit()
+        return True
+    
 class Genres :
     id : int =0
     name: str =""
@@ -234,6 +268,17 @@ class GenresDataAdapter:
         genre.id=lid
         return genre
     
+    @staticmethod
+    def delete(id: int) -> bool:
+        cn = sqlite3.connect("books.db")
+        cur = cn.cursor()
+        sql = "SELECT genre_id FROM books"
+        if id in [row[0] for row in cur.execute(sql)]:
+            return False
+        cur.execute(f"DELETE FROM genres WHERE id={id}")
+        cn.commit()
+        return True
+    
 class Languages :
     id : int =0
     name: str =""
@@ -264,6 +309,17 @@ class LanguagesDataAdapter:
         lid=cur.lastrowid
         lang.id=lid
         return lang
+    
+    @staticmethod
+    def delete(id: int) -> bool:
+        cn = sqlite3.connect("books.db")
+        cur = cn.cursor()
+        sql = "SELECT language_id FROM books"
+        if id in [row[0] for row in cur.execute(sql)]:
+            return False
+        cur.execute(f"DELETE FROM languages WHERE id={id}")
+        cn.commit()
+        return True
     
 #multiple
 class Book_author:
@@ -297,4 +353,31 @@ class Books :
     book_translator:list[Book_translator]=[]
     book_resource:list[Book_resource]=[]
     book_genre:list[Book_genre]=[]
-    
+    class LanguagesDataAdapter:
+        @staticmethod
+        def get_all()-> list[Languages]:
+            books=[]
+            cn=sqlite3.connect("bookss.db")
+            cur=cn.cursor()
+            boks=cur.execute("SELECT * FROM books")
+            for bk in boks:
+                r1=Books(bk[0],bk[1],bk[2])
+                books.append(r1)
+            for bok in books :
+                print(bok)
+        @staticmethod
+        def delete(id:int)-> bool:
+            cn = sqlite3.connect("books.db")
+            cur = cn.cursor()
+            sql=cur.execute("SELECT id FROM books WHERE id = {id}")
+            if id in [row[0] for row in cur.execute(sql)]:
+                return False
+            cur.execute("DELETE FROM book_author WHERE book_id = {book_id}")
+            cur.execute("DELETE FROM book_translator WHERE book_id = {book_id}")
+            cur.execute("DELETE FROM book_resource WHERE book_id = {book_id}")
+            cur.execute("DELETE FROM book_genre WHERE book_id = {book_id}")
+            cur.execute("DELETE FROM book_language WHERE book_id = {book_id}")
+            cur.execute("DELETE FROM books WHERE id = {book_id}")
+            cn.commit()
+            return True
+
