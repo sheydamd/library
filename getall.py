@@ -1,7 +1,8 @@
 import sqlite3
 con= sqlite3.connect('bookss.db')
 cur= con.cursor()
-class Authors :
+
+class Author :
     id : int =0
     national_code :int = 0
     Name: str =""
@@ -18,20 +19,22 @@ class Authors :
         self.grade=grade
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name},last_name:{self.last_name}"
+    def __eq__(self,other):
+        return isinstance(other.Aathor) and self.id==other.id
     
-class AuthorsDataAdapter:
+class AuthorDataAdapter:
     @staticmethod
-    def get_all()-> list[Authors]:
+    def get_all()-> list[Author]:
         authors=[]
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         auths=cur.execute("SELECT * FROM Authors")
         for au in auths:
-            a1=Authors(au[0],au[1],au[2])
+            a1=Author(au[0],au[1],au[2])
             authors.append(a1)
         for author in authors:
             print(author)
-    def insert(author: Authors)-> Authors:
+    def insert(author: Author)-> Author:
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         sql=f"INSERT INTO authors (id,name,last_name,birthday,grade,national_code) VALUES({author.id}, '{author.name}', '{author.last_name}', '{author.birthday}', '{author.grade}','{author.national_code}'))"
@@ -52,7 +55,7 @@ class AuthorsDataAdapter:
         cn.commit()
         return True
     
-class Translators :
+class Translator :
     id : int =0
     national_code :int = 0
     Name: str =""
@@ -68,20 +71,21 @@ class Translators :
         self.grade=grade
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name},last_name:{self.last_name}"
-    
-class TranslatorsDataAdapter:
+    def __eq__(self,other):
+        return isinstance(other.Translators) and self.id==other.id
+class TranslatorDataAdapter:
     @staticmethod
-    def get_all()-> list[Translators]:
+    def get_all()-> list[Translator]:
         translators=[]
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         tran=cur.execute("SELECT * FROM Translators")
         for tr in tran:
-            t1=Translators(tr[0],tr[1],tr[2])
+            t1=Translator(tr[0],tr[1],tr[2])
             translators.append(t1)
         for translator in translators:
             print(translator)
-    def insert(tranlator: Translators)-> Translators:
+    def insert(tranlator: Translator)-> Translator:
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         sql=f"INSERT INTO translators (id,name,last_name,birthday,grade,national_code) VALUES({tranlator.id}, '{tranlator.name}', '{tranlator.last_name}', '{tranlator.birthday}', '{tranlator.grade}','{tranlator.national_code}'))"
@@ -101,7 +105,7 @@ class TranslatorsDataAdapter:
         cn.commit()
         return True
     
-class Esrb_ratings :
+class Esrb_rating :
     id : int =0
     esrb_name: str =""
     def __init__(self,id,esrb_name):
@@ -111,20 +115,23 @@ class Esrb_ratings :
     def __str__(self)-> str:
         return f"id: {self.id},esrb_name:{self.esrb_name}"
     
-class Esrb_ratingsDataAdapter:
+    def __eq__(self,other):
+        return isinstance(other.Esrb_rating) and self.id==other.id
+    
+class Esrb_ratingDataAdapter:
     @staticmethod
-    def get_all()-> list[Esrb_ratings]:
+    def get_all()-> list[Esrb_rating]:
         esrb_ratings=[]
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         esrb=cur.execute("SELECT * FROM esrb_ratings")
         for es in esrb:
-            e1=Esrb_ratings(es[0],es[1],es[2])
+            e1=Esrb_rating(es[0],es[1],es[2])
             esrb_ratings.append(e1)
         for esrbr in esrb_ratings:
             print(esrb)
 
-    def insert(esrb: Esrb_ratings)-> Esrb_ratings:
+    def insert(esrb: Esrb_rating)-> Esrb_rating:
         cn=sqlite3.connect("data1.db")
         cur=cn.cursor()
         sql=f"INSERT INTO esrb_ratings (id, name) VALUES( {esrb.id} ,'{esrb.name}')"
@@ -147,7 +154,7 @@ class Esrb_ratingsDataAdapter:
         else:
             return False
 
-class Publishers :
+class Publisher :
     id : int =0
     address:str=""
     establish_date :str = ""
@@ -163,15 +170,18 @@ class Publishers :
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name},birthday:{self.birthday}"
     
-class PublishersDataAdapter:
+    def __eq__(self,other):
+        return isinstance(other.Publisher) and self.id==other.id
+    
+class PublisherDataAdapter:
     @staticmethod
-    def get_all()-> list[Publishers]:
+    def get_all()-> list[Publisher]:
         publishers=[]
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         pubs=cur.execute("SELECT * FROM Publishers")
         for pu in pubs:
-            t1=Publishers(pu[0],pu[1],pu[2])
+            t1=Publisher(pu[0],pu[1],pu[2])
             publishers.append(t1)
         for publisher in publishers:
             print(publisher)
@@ -189,7 +199,7 @@ class PublishersDataAdapter:
         else:
             return False
 
-class Resources :
+class Resource :
     id : int =0
     title :str = 0
     type: str =""
@@ -201,21 +211,23 @@ class Resources :
         self.establish_date=establish_date
     def __str__(self)-> str:
         return f"id: {self.id},title:{self.title},establish_date:{self.establish_date}"
+    def __eq__(self,other):
+        return isinstance(other.Resource) and self.id==other.id
     
-class ResourcesDataAdapter:
+class ResourceDataAdapter:
     @staticmethod
-    def get_all()-> list[Resources]:
+    def get_all()-> list[Resource]:
         resources=[]
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         res=cur.execute("SELECT * FROM resources")
         for rs in res:
-            r1=Resources(rs[0],rs[1],rs[2])
+            r1=Resource(rs[0],rs[1],rs[2])
             resources.append(r1)
         for resource in resources :
             print(resource)
 
-    def insert(resource: Resources)-> Resources:
+    def insert(resource: Resource)-> Resource:
         cn=sqlite3.connect("data1.db")
         cur=cn.cursor()
         sql=f"INSERT INTO resources (id, title, type, establish_date) VALUES( {resource.id} ,'{resource.title}','{resource.type}','{resource.establish_date}')"
@@ -236,7 +248,7 @@ class ResourcesDataAdapter:
         cn.commit()
         return True
     
-class Genres :
+class Genre :
     id : int =0
     name: str =""
     def __init__(self,id,name):
@@ -244,21 +256,22 @@ class Genres :
         self.name=name
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name}"
-    
-class GenresDataAdapter:
+    def __eq__(self,other):
+        return isinstance(other.Gunre) and self.id==other.id
+class GenreDataAdapter:
     @staticmethod
-    def get_all()-> list[Genres]:
+    def get_all()-> list[Genre]:
         genres=[]
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         gens=cur.execute("SELECT * FROM genres")
         for gen in gens:
-            g1=Resources(gen[0],gen[1],gen[2])
+            g1=Resource(gen[0],gen[1],gen[2])
             genres.append(g1)
         for genre in genres :
             print(genre)
 
-    def insert(genre: Genres)-> Genres:
+    def insert(genre: Genre)-> Genre:
         cn=sqlite3.connect("data1.db")
         cur=cn.cursor()
         sql=f"INSERT INTO genres (id, esrb_name) VALUES( {genre.id} ,'{genre.name}')"
@@ -279,7 +292,7 @@ class GenresDataAdapter:
         cn.commit()
         return True
     
-class Languages :
+class Language :
     id : int =0
     name: str =""
     def __init__(self,id,name):
@@ -287,20 +300,21 @@ class Languages :
         self.name=name
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name}"
-    
-class LanguagesDataAdapter:
+    def __eq__(self,other):
+        return isinstance(other.Language) and self.id==other.id
+class LanguageDataAdapter:
     @staticmethod
-    def get_all()-> list[Languages]:
+    def get_all()-> list[Language]:
         languages=[]
         cn=sqlite3.connect("bookss.db")
         cur=cn.cursor()
         lan=cur.execute("SELECT * FROM languages")
         for ln in lan:
-            r1=Resources(ln[0],ln[1],ln[2])
+            r1=Resource(ln[0],ln[1],ln[2])
             languages.append(r1)
         for language in languages :
             print(language)
-    def insert(lang: Languages)-> Languages:
+    def insert(lang: Language)-> Language:
         cn=sqlite3.connect("data1.db")
         cur=cn.cursor()
         sql=f"INSERT INTO languages (id, esrb_name) VALUES( {lang.id} ,'{lang.name}')"
@@ -341,32 +355,72 @@ class Book_language:
     book:str=""
     language:str=""
 
-class Books :
+class Book :
     id :int = 0
     name: str =""
     title: str =""
     description : str =""
-    esrb_rating : Esrb_ratings =None
-    publisher: Publishers =None
+    esrb_rating : Esrb_rating =None
+    publisher: Publisher =None
     book_language:list[Book_language]=[]
     book_author:list[Book_author]=[]
     book_translator:list[Book_translator]=[]
     book_resource:list[Book_resource]=[]
     book_genre:list[Book_genre]=[]
-    class LanguagesDataAdapter:
-        @staticmethod
-        def get_all()-> list[Languages]:
-            books=[]
-            cn=sqlite3.connect("bookss.db")
-            cur=cn.cursor()
-            boks=cur.execute("SELECT * FROM books")
-            for bk in boks:
-                r1=Books(bk[0],bk[1],bk[2])
-                books.append(r1)
-            for bok in books :
-                print(bok)
-        @staticmethod
-        def delete(id:int)-> bool:
+    def __init__(self,id,name,title,description):
+        self.id=id
+        self.name=name
+        self.title=title
+        self.description=description
+        self.description
+        self.esrb_rating = None
+        self.publisher = None
+        self.book_language = []
+        self.book_author = []
+        self.book_translator = []
+        self.book_resource = []
+        self.book_genre = []
+        self.publisher=None
+    def __str__(self)-> str:
+        return f"id: {self.id},name:{self.name},title:{self.title},description:{self.description}"
+    
+class BookDataAdapter:
+    @staticmethod
+    def get_books_only():
+        import sqlite3
+        cn = sqlite3.connect("bookss.db")
+        cur = cn.cursor()
+
+        books = []
+        for row in cur.execute("SELECT id, name, title, description FROM books"):
+            books.append(Book(row[0], row[1], row[2], row[3]))
+
+        cn.close()
+        return books
+
+    @staticmethod
+    def get_all():
+        books = BookDataAdapter.get_books_only()
+        books_map = {book.id: book for book in books}
+
+        for ba in AuthorDataAdapter.get_all():
+            if ba.book_id in books_map:
+                if ba.author not in books_map[ba.book_id].book_author:
+                    books_map[ba.book_id].book_author.append(ba.author)
+
+        for bg in GenreDataAdapter.get_all():
+            if bg.book_id in books_map:
+                if bg.genre not in books_map[bg.book_id].book_genre:
+                    books_map[bg.book_id].book_genre.append(bg.genre)
+
+        for bl in LanguageDataAdapter.get_all():
+            if bl.book_id in books_map:
+                if bl.language not in books_map[bl.book_id].book_language:
+                    books_map[bl.book_id].book_language.append(bl.language)
+
+        return list(books_map.values())
+    @staticmethod
+    def delete(id:int)-> bool:
             cn = sqlite3.connect("books.db")
             cur = cn.cursor()
             sql=cur.execute("SELECT id FROM books WHERE id = {id}")
@@ -381,3 +435,6 @@ class Books :
             cn.commit()
             return True
 
+books=BookDataAdapter.get_all()
+for book in books:
+    print(book)
