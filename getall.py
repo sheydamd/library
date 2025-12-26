@@ -19,8 +19,10 @@ class Author :
         self.grade=grade
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name},last_name:{self.last_name}"
-    def __eq__(self,other):
-        return isinstance(other.Aathor) and self.id==other.id
+    def __eq__(self, other):
+        if not isinstance(other, Author):
+            return False
+        return self.id==other.id
     
 class AuthorDataAdapter:
     @staticmethod
@@ -71,8 +73,10 @@ class Translator :
         self.grade=grade
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name},last_name:{self.last_name}"
-    def __eq__(self,other):
-        return isinstance(other.Translators) and self.id==other.id
+    def __eq__(self, other):
+        if not isinstance(other, Translator):
+            return False
+        return self.id==other.id
 class TranslatorDataAdapter:
     @staticmethod
     def get_all()-> list[Translator]:
@@ -115,8 +119,10 @@ class Esrb_rating :
     def __str__(self)-> str:
         return f"id: {self.id},esrb_name:{self.esrb_name}"
     
-    def __eq__(self,other):
-        return isinstance(other.Esrb_rating) and self.id==other.id
+    def __eq__(self, other):
+        if not isinstance(other, Esrb_rating):
+            return False
+        return self.id==other.id
     
 class Esrb_ratingDataAdapter:
     @staticmethod
@@ -170,8 +176,10 @@ class Publisher :
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name},birthday:{self.birthday}"
     
-    def __eq__(self,other):
-        return isinstance(other.Publisher) and self.id==other.id
+    def __eq__(self, other):
+        if not isinstance(other, Publisher):
+            return False
+        return self.id==other.id
     
 class PublisherDataAdapter:
     @staticmethod
@@ -384,57 +392,88 @@ class Book :
     def __str__(self)-> str:
         return f"id: {self.id},name:{self.name},title:{self.title},description:{self.description}"
     
+
 class BookDataAdapter:
     @staticmethod
-    def get_books_only():
-        import sqlite3
-        cn = sqlite3.connect("bookss.db")
-        cur = cn.cursor()
+    def get_all() -> list:
+            cn = sqlite3.connect("bookss.db")
+            cur = cn.cursor()
 
-        books = []
-        for row in cur.execute("SELECT id, name, title, description FROM books"):
-            books.append(Book(row[0], row[1], row[2], row[3]))
+            bookss = cur.execute("SELECT id, name, title, description, esrb_rating_id, publisher_id FROM books").fetchall()
 
-        cn.close()
-        return books
+            data= cur.execute("""
+                SELECT 
+                    books.id,
+                    book_author.author_id,
+                    book_translator.translator_id,
+                    book_resource.resource_id,
+                    book_language.language_id,
+                    book_genre.genre_id
+                FROM books
+                LEFT JOIN book_author     ON books.id = book_author.book_id
+                LEFT JOIN book_translator ON books.id = book_translator.book_id
+                LEFT JOIN book_resource   ON books.id = book_resource.book_id
+                LEFT JOIN book_language   ON books.id = book_language.book_id
+                LEFT JOIN book_genre      ON books.id = book_genre.book_id
+            """).fetchall()
+            
+            resources   = ResourceDataAdapter.get_all()
+            authors     = AuthorDataAdapter.get_all()
+            translators = TranslatorDataAdapter.get_all()
+            genres      = GenreDataAdapter.get_all()
+            languages   = LanguageDataAdapter.get_all()
 
-    @staticmethod
-    def get_all():
-        books = BookDataAdapter.get_books_only()
-        books_map = {book.id: book for book in books}
+            books = []
+            for book in bookss:
+                book_id = book[0]
 
-        for ba in AuthorDataAdapter.get_all():
-            if ba.book_id in books_map:
-                if ba.author not in books_map[ba.book_id].book_author:
-                    books_map[ba.book_id].book_author.append(ba.author)
+                author_ids     = { row[1] for row in data if row[0] == book_id and row[1] is not None }
+                translator_ids = { row[2] for row in data if row[0] == book_id and row[2] is not None }
+                resource_ids   = { row[3] for row in data if row[0] == book_id and row[3] is not None }
+                language_ids   = { row[4] for row in data if row[0] == book_id and row[4] is not None }
+                genre_ids      = { row[5] for row in data if row[0] == book_id and row[5] is not None }
 
-        for bg in GenreDataAdapter.get_all():
-            if bg.book_id in books_map:
-                if bg.genre not in books_map[bg.book_id].book_genre:
-                    books_map[bg.book_id].book_genre.append(bg.genre)
+                res = [r for r in resources   if r.id in resource_ids]
+                aut = [a for a in authors     if a.id in author_ids]
+                tra = [t for t in translators if t.id in translator_ids]
+                gen = [g for g in genres      if g.id in genre_ids]
+                lan = [l for l in languages   if l.id in language_ids]
 
-        for bl in LanguageDataAdapter.get_all():
-            if bl.book_id in books_map:
-                if bl.language not in books_map[bl.book_id].book_language:
-                    books_map[bl.book_id].book_language.append(bl.language)
+                books.append(
+                    Book(
+                        id=book[0],
+                        name=book[1],
+                        title=book[2],
+                        description=book[3],
+                        esrb_rating_id=book[4],
+                        publisher_id=book[5],
+                        book_author=aut,
+                        book_translator=tra,
+                        book_resource=res,
+                        book_genre=gen,
+                        book_language=lan
+                    )
+                )
 
-        return list(books_map.values())
+            cn.close()
+            return books
+        
     @staticmethod
     def delete(id:int)-> bool:
-            cn = sqlite3.connect("books.db")
-            cur = cn.cursor()
-            sql=cur.execute("SELECT id FROM books WHERE id = {id}")
-            if id in [row[0] for row in cur.execute(sql)]:
-                return False
-            cur.execute("DELETE FROM book_author WHERE book_id = {book_id}")
-            cur.execute("DELETE FROM book_translator WHERE book_id = {book_id}")
-            cur.execute("DELETE FROM book_resource WHERE book_id = {book_id}")
-            cur.execute("DELETE FROM book_genre WHERE book_id = {book_id}")
-            cur.execute("DELETE FROM book_language WHERE book_id = {book_id}")
-            cur.execute("DELETE FROM books WHERE id = {book_id}")
-            cn.commit()
-            return True
-
+        cn = sqlite3.connect("books.db")
+        cur = cn.cursor()
+        sql=cur.execute("SELECT id FROM books WHERE id = {id}")
+        if id in [row[0] for row in cur.execute(sql)]:
+            return False
+        cur.execute("DELETE FROM book_author WHERE book_id = {book_id}")
+        cur.execute("DELETE FROM book_translator WHERE book_id = {book_id}")
+        cur.execute("DELETE FROM book_resource WHERE book_id = {book_id}")
+        cur.execute("DELETE FROM book_genre WHERE book_id = {book_id}")
+        cur.execute("DELETE FROM book_language WHERE book_id = {book_id}")
+        cur.execute("DELETE FROM books WHERE id = {book_id}")
+        cn.commit()
+        return True
+        
 books=BookDataAdapter.get_all()
 for book in books:
     print(book)
