@@ -32,7 +32,7 @@ class AuthorDataAdapter:
         cur=cn.cursor()
         auths=cur.execute("SELECT * FROM Authors")
         for au in auths:
-            a1=Author(au[0],au[1],au[2])
+            a1=Author(au[0],au[1],au[2],au[3],au[4],au[5])
             authors.append(a1)
         for author in authors:
             print(author)
@@ -85,7 +85,7 @@ class TranslatorDataAdapter:
         cur=cn.cursor()
         tran=cur.execute("SELECT * FROM Translators")
         for tr in tran:
-            t1=Translator(tr[0],tr[1],tr[2])
+            t1=Translator(tr[0],tr[1],tr[2],tr[3])
             translators.append(t1)
         for translator in translators:
             print(translator)
@@ -132,7 +132,7 @@ class Esrb_ratingDataAdapter:
         cur=cn.cursor()
         esrb=cur.execute("SELECT * FROM esrb_ratings")
         for es in esrb:
-            e1=Esrb_rating(es[0],es[1],es[2])
+            e1=Esrb_rating(es[0],es[1])
             esrb_ratings.append(e1)
         for esrbr in esrb_ratings:
             print(esrb)
@@ -189,7 +189,7 @@ class PublisherDataAdapter:
         cur=cn.cursor()
         pubs=cur.execute("SELECT * FROM Publishers")
         for pu in pubs:
-            t1=Publisher(pu[0],pu[1],pu[2])
+            t1=Publisher(pu[0],pu[1],pu[2],pu[3],pu[4],pu[5])
             publishers.append(t1)
         for publisher in publishers:
             print(publisher)
@@ -274,7 +274,7 @@ class GenreDataAdapter:
         cur=cn.cursor()
         gens=cur.execute("SELECT * FROM genres")
         for gen in gens:
-            g1=Resource(gen[0],gen[1],gen[2])
+            g1=Genre(gen[0])
             genres.append(g1)
         for genre in genres :
             print(genre)
@@ -318,7 +318,7 @@ class LanguageDataAdapter:
         cur=cn.cursor()
         lan=cur.execute("SELECT * FROM languages")
         for ln in lan:
-            r1=Resource(ln[0],ln[1],ln[2])
+            r1=Language(ln[0])
             languages.append(r1)
         for language in languages :
             print(language)
