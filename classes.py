@@ -1,6 +1,6 @@
 import sqlite3
 
-cn = sqlite3.connect("books.db")
+cn = sqlite3.connect("bookh.db")
 cur=cn.cursor()
 
 
@@ -195,6 +195,14 @@ class BooksDataAdapter:
             cn.commit()
             return True
         return False
+    
+    @staticmethod
+    def search(title:str,author:str,translator:str,publisher:str,genre:str):
+        books=[]
+        auths=cur.execute(f"SELECT books.title,authors.name,translators.name,publishers.name,genres.name FROM books left join book_author ON books.id=book_author.book_id left join book_translator ON books.id=book_translator.book_id left join publishers on books.publisher_id=publishers.id left join book_genre on books.id=book_genre.book_id where title like '%{title}%' AND author_name like '%{author}%' AND translator_name like '%{translator}%' AND publisher_name like '%{publisher}%' AND genre_name like '%{genre}%'").fetchall()
+        for auth in auths:
+            books.append(Book(auth[0],auth[1],auth[2],auth[3],auth[4]))
+        return books
 
 
 
@@ -291,7 +299,7 @@ class PublishersDataAdapter:
         publishers=[]
         auths=cur.execute(f"SELECT * FROM authors  where name like '%{name}%'").fetchall()
         for auth in auths:
-            publishers.append(Author(auth[0],auth[1],auth[2],auth[3],auth[4],auth[5],auth[6]))
+            publishers.append(Publisher(auth[0],auth[1],auth[2],auth[3],auth[4],auth[5],auth[6]))
         return publishers
 
 
@@ -325,7 +333,7 @@ class ResourcesDataAdapter:
         resources=[]
         auths=cur.execute(f"SELECT * FROM resources  where title like '%{title}%'").fetchall()
         for auth in auths:
-            resources.append(Author(auth[0],auth[1],auth[2],auth[3]))
+            resources.append(Resource(auth[0],auth[1],auth[2],auth[3]))
         return resources
 
 
@@ -361,7 +369,7 @@ class EsrbsDataAdapter:
         esrbs=[]
         auths=cur.execute(f"SELECT * FROM esrb_ratings  where name like '%{esrb_name}%'").fetchall()
         for auth in auths:
-            esrbs.append(Author(auth[0],auth[1]))
+            esrbs.append(Esrb(auth[0],auth[1]))
         return esrbs
 
 
@@ -394,7 +402,7 @@ class GenresDataAdapter:
         genres=[]
         auths=cur.execute(f"SELECT * FROM genres  where name like '%{name}%'").fetchall()
         for auth in auths:
-            genres.append(Author(auth[0],auth[1]))
+            genres.append(Genre(auth[0],auth[1]))
         return genres
 
 
@@ -428,7 +436,7 @@ class LanguagesDataAdapter:
         languages=[]
         auths=cur.execute(f"SELECT * FROM authors  where name like '%{name}%'").fetchall()
         for auth in auths:
-            languages.append(Author(auth[0],auth[1]))
+            languages.append(Language(auth[0],auth[1]))
         return languages
 
 
@@ -438,6 +446,6 @@ for book in b1:
     print(book)"""
 
 
-a1=AuthorsDataAdapter.search("صاد","هدا")
-for author in a1:
-    print(author)
+a1=BooksDataAdapter.search("k","l","d","p","s")
+for book in a1:
+    print(book)

@@ -1,6 +1,6 @@
 import sqlite3
 
-cn = sqlite3.connect("bookh.db")
+cn = sqlite3.connect("books.db")
 cur=cn.cursor()
 
 
@@ -195,6 +195,44 @@ class BooksDataAdapter:
             cn.commit()
             return True
         return False
+    
+    @staticmethod
+    def search(title="",author="",translator="",publisher="",genre=""):
+        query="""
+                SELECT distinct books.* FROM books
+                left join book_author ON books.id=book_author.book_id left join authors on book_author.author_id= authors.id
+                left join book_translator ON books.id=book_translator.book_id left join translators on book_translator.translator_id= translators.id
+                left join publishers on books.publisher_id=publishers.id 
+                left join book_genre on books.id=book_genre.book_id left join genres on book_genre.genre_id= genres.id
+                where 1=1
+                """
+        parms=[]
+        if title:
+            query += "and books.name like ?"
+            parms.append(f"%{title}%")
+        if author:
+            query += "and (authors.name like ? or authors.last_name like ?)"
+            parms.append(f"%{author}%")
+            parms.append(f"%{author}%")
+        if translator:
+            query += "and (translators.name like ? or translators.last_name like ?)"
+            parms.append(f"%{translator}%")
+            parms.append(f"%{translator}%")
+        if publisher:
+            query += "and publishers.name like ?"
+            parms.append(f"%{publisher}%")
+        if genre:
+            query += "and genres.name like ?"
+            parms.append(f"%{genre}%")
+
+        rows=cur.execute(query,parms).fetchall()    
+        books=[]
+        s_ids= set()
+        for row in rows:
+            if row[0] not in s_ids:
+                s_ids.add(row[0])
+                books.append(Book(row[0],row[1],row[2],row[3],row[4],row[5],[],[],[],[],[]))
+        return books
 
 
 
@@ -221,7 +259,13 @@ class AuthorsDataAdapter:
             cn.commit()
             return True
         return False
-
+    @staticmethod
+    def search(name:str,last_name:str):
+        authors=[]
+        auths=cur.execute(f"SELECT * FROM authors  where name like '%{name}%' AND last_name like '%{last_name}%'").fetchall()
+        for auth in auths:
+            authors.append(Author(auth[0],auth[1],auth[2],auth[3],auth[4],auth[5]))
+        return authors
 
 
 class TranslatorsDataAdapter:
@@ -247,7 +291,14 @@ class TranslatorsDataAdapter:
             cn.commit()
             return True
         return False
-
+    
+    @staticmethod
+    def search(name:str,last_name:str):
+        translators=[]
+        auths=cur.execute(f"SELECT * FROM translators  where name like '%{name}%' AND last_name like '%{last_name}%'").fetchall()
+        for auth in auths:
+            translators.append(Author(auth[0],auth[1],auth[2],auth[3],auth[4]))
+        return translators
 
 
 class PublishersDataAdapter:
@@ -273,6 +324,13 @@ class PublishersDataAdapter:
             cn.commit()
             return True
         return False
+    @staticmethod
+    def search(name:str):
+        publishers=[]
+        auths=cur.execute(f"SELECT * FROM authors  where name like '%{name}%'").fetchall()
+        for auth in auths:
+            publishers.append(Publisher(auth[0],auth[1],auth[2],auth[3],auth[4],auth[5],auth[6]))
+        return publishers
 
 
 
@@ -299,6 +357,14 @@ class ResourcesDataAdapter:
             cn.commit()
             return True
         return False
+    
+    @staticmethod
+    def search(title:str):
+        resources=[]
+        auths=cur.execute(f"SELECT * FROM resources  where title like '%{title}%'").fetchall()
+        for auth in auths:
+            resources.append(Resource(auth[0],auth[1],auth[2],auth[3]))
+        return resources
 
 
 
@@ -327,6 +393,14 @@ class EsrbsDataAdapter:
             cn.commit()
             return True
         return False
+    
+    @staticmethod
+    def search(esrb_name:str):
+        esrbs=[]
+        auths=cur.execute(f"SELECT * FROM esrb_ratings  where name like '%{esrb_name}%'").fetchall()
+        for auth in auths:
+            esrbs.append(Esrb(auth[0],auth[1]))
+        return esrbs
 
 
 
@@ -353,6 +427,13 @@ class GenresDataAdapter:
             cn.commit()
             return True
         return False
+    @staticmethod
+    def search(name:str):
+        genres=[]
+        auths=cur.execute(f"SELECT * FROM genres  where name like '%{name}%'").fetchall()
+        for auth in auths:
+            genres.append(Genre(auth[0],auth[1]))
+        return genres
 
 
 
@@ -379,11 +460,18 @@ class LanguagesDataAdapter:
             cn.commit()
             return True
         return False
+    
+    @staticmethod
+    def search(name:str):
+        languages=[]
+        auths=cur.execute(f"SELECT * FROM authors  where name like '%{name}%'").fetchall()
+        for auth in auths:
+            languages.append(Language(auth[0],auth[1]))
+        return languages
 
 
 
-b1=BooksDataAdapter.get_all()
-for book in b1:
+
+a1=BooksDataAdapter.search("نبرد قدرت")
+for book in a1:
     print(book)
-
-

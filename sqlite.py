@@ -1,10 +1,99 @@
 import sqlite3
 
-# اتصال به دیتابیس (در صورت نبود ایجاد می‌شود)
-conn = sqlite3.connect("bookss.db")
+
+conn = sqlite3.connect("books.db")
 cursor = conn.cursor()
 
-data="""INSERT INTO esrb_ratings (name) VALUES 
+schema_sql = """
+DROP TABLE IF EXISTS books;
+CREATE TABLE IF NOT EXISTS books(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name VARCHAR(30),
+title VARCHAR(50),
+description VARCHAR(60),
+esrb_rating_id INTEGER,
+publisher_id INTEGER
+);
+
+DROP TABLE IF EXISTS authors;
+CREATE TABLE IF NOT EXISTS authors(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+national_code varchar(20),
+name varchar(30),
+last_name varchar(30),
+birthday varchar(15),
+grade varchar(30));
+
+DROP TABLE IF EXISTS translators;
+CREATE TABLE IF NOT EXISTS translators(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+national_code varchar(20),
+name varchar(30),
+last_name varchar(30),
+grade varchar(30));
+
+DROP TABLE IF EXISTS esrb_ratings;
+CREATE TABLE IF NOT EXISTS esrb_ratings(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+esrb_name INTEGER);
+
+DROP TABLE IF EXISTS publishers;
+CREATE TABLE IF NOT EXISTS publishers(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name varchar(30),
+address varchar(50),
+phone_number varchar(15),
+fax_number varchar(15),
+email varchar(50),
+establish_date varchar(15));
+
+DROP TABLE IF EXISTS resources;
+CREATE TABLE IF NOT EXISTS resources(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+title varchar(30),
+type varchar(30),
+establish_date varchar(30));
+
+DROP TABLE IF EXISTS genres;
+CREATE TABLE IF NOT EXISTS genres(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name varchar(20));
+
+DROP TABLE IF EXISTS languages;
+CREATE TABLE IF NOT EXISTS languages(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name varchar(30));
+
+DROP TABLE IF EXISTS book_author;
+CREATE TABLE IF NOT EXISTS book_author(
+book_id INTEGER ,
+author_id INTEGER);
+
+DROP TABLE IF EXISTS book_translator;
+CREATE TABLE IF NOT EXISTS book_translator(
+book_id INTEGER ,
+translator_id INTEGER);
+
+DROP TABLE IF EXISTS book_resource;
+CREATE TABLE IF NOT EXISTS book_resource(
+book_id INTEGER ,
+resource_id INTEGER);
+
+DROP TABLE IF EXISTS book_language;
+CREATE TABLE IF NOT EXISTS book_language(
+book_id INTEGER ,
+language_id INTEGER);
+
+DROP TABLE IF EXISTS book_genre;
+CREATE TABLE IF NOT EXISTS book_genre(
+book_id INTEGER ,
+genre_id INTEGER);
+"""
+cursor.executescript(schema_sql)
+
+insert_sql = """
+-- درج رتبه‌های سنی ESRB
+INSERT INTO esrb_ratings (esrb_name) VALUES 
 ('E'), ('E10+'), ('T'), ('M'), ('AO');
 
 
@@ -113,7 +202,6 @@ INSERT INTO books (name, title, description, esrb_rating_id, publisher_id) VALUE
 ('خانه ادریسی‌ها', 'رمان تاریخی', 'داستان خانواده‌ای قدیمی', 3, 5);
 
 
-
 -- ارتباط کتاب‌ها با نویسندگان (۵ کتاب با ۲ نویسنده)
 INSERT INTO book_author (book_id, author_id) VALUES 
 (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
@@ -159,6 +247,9 @@ INSERT INTO book_genre (book_id, genre_id) VALUES
 (7, 1), (7,2), (8, 1), (8, 4), (9, 3),
 (2, 1), (3,2), (4, 1), (5, 4), (11, 3),
 (12, 1), (13,2), (14, 1), (15, 4), (16, 3);
+
 """
-cursor.executescript(data)
+cursor.executescript(insert_sql)
 conn.commit()
+conn.close()
+
